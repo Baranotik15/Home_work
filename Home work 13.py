@@ -24,8 +24,8 @@ class Unit:
                 return (f"Application of the drug, now my Heal Point is:{treatment}")
             else:
                 self.health = treatment
-                return (f"Application of the drug, now my Heal Point is:{treatment}")
-        return ("i have maximum Heal Points, i can't heal")
+                return treatment
+
 
 
 
@@ -37,16 +37,14 @@ class Unit:
             if damage < 0:
                 damage = 0
                 self.health = damage
-                return (f"Oh, i got damage, now my Heal Point is: {damage}")
+                return damage
             else:
                 self.health = damage
-                return (f"Oh, i got damage, now my Heal Point is: {damage}")
-        return ("i haven't Heal Points")
+                return damage
 
     def get_level_up(self):
-        if self.power < 10:
-            self.power += 1
             return
+        pass
 
 
 
