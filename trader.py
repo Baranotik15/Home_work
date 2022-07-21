@@ -108,6 +108,7 @@ def restart(config):
 
 if __name__ == '__main__':
     config = read("config.json")
+    writr("data.json", config)
     data = read("data.json")
 
     availible(data)
