@@ -1,76 +1,121 @@
 import random
 import json
 
-def RATE(curs):
-    if curs:
-        exchange_rate_naw = curs
-        return exchange_rate_naw
+
+def read(filename):
+    with open(filename, "r") as file:
+        data = json.load(file)
+        return data
+
+def write(file_name, x):
+    with open(file_name, "w") as file:
+        data_write = json.dump(x,file)
+
+def tofixe(x):
+    x = int(x * 100) / 100
+    return x
+
+def rate(data):
+    rate_new = data.get("exchange_rate")
+    print(rate_new)
+
+def availible(data):
+    usd = data.get("USD")
+    uah = data.get("UAH")
+    print(f'USD: {usd}; UAH: {uah}')
+
+def buy_xxx(x, data):
+    curs = data.get("exchange_rate")
+    usd = data.get("USD")
+    uah = data.get("UAH")
+    availible_uah = x * curs
+    if uah > availible_uah:
+        uah = uah - availible_uah
+        usd = usd + x
+        data["USD"] = usd
+        data["UAH"] = uah
+        write("data.json", data)
+        print( f'USD: {usd}; UAH: {uah}')
     else:
-        exchange_rate = data.get("exchange_rate")
-        exchange_rate_naw = exchange_rate
-        return exchange_rate_naw
+        print(f"UNAVAILABLE, REQUIRED BALANCE UAH {availible_uah}, AVAILABLE {uah}")
 
-def AVAILABLE():
-    USD = data.get("USD")
-    UAH = data.get("UAH")
-    return f"USD = {USD}, UAH = {UAH}"
 
-# def BUY_XXX():
-#     a = 1
-#     pass
-#
-# def SELL_XXX():
-#     a = 1
-#     pass
+def sell_xxx(x, data):
+    curs = data.get("exchange_rate")
+    usd = data.get("USD")
+    uah = data.get("UAH")
+    availible_uah = x * curs
+    if usd > x:
+        uah = uah + availible_uah
+        usd = usd - x
+        data["USD"] = usd
+        data["UAH"] = uah
+        write("data.json", config)
+        print(f'USD: {usd}; UAH: {uah}')
+    else:
+        print(f"UNAVAILABLE, REQUIRED BALANCE USD {x}, AVAILABLE {usd}")
 
-def BUY_ALL(curs):
-    USD = data.get("USD")
-    UAH = data.get("UAH")
+def buy_all(data):
+    usd = data.get("USD")
+    uah = data.get("UAH")
+    curs = data.get("exchange_rate")
     curs_in_function = float(curs)
-    buy_all = UAH / curs_in_function
-    buy_all_correct = float(round(buy_all, 2))
-    UAH_2 = UAH - curs_in_function * buy_all_correct
-    UAH = float(round(UAH_2, 2))
-    USD_2 = USD + buy_all_correct
-    USD = float(round(USD_2, 2))
-    return f'сумма средств на USD счету: {USD};  сумма средств на UAH счету: {UAH}'
+    buy_all = uah / curs_in_function
+    buy_all_correct = tofixe(buy_all)
+    uah_2 = uah - curs_in_function * buy_all_correct
+    uah = tofixe(uah_2)
+    usd_2 = usd + buy_all_correct
+    usd = tofixe(usd_2)
+    data["USD"] = usd
+    data["UAH"] = uah
+    write("data.json", data)
+    print(f'USD: {usd}; UAH: {uah}')
 
-def SELL_ALL(curs):
-    USD = 1011.15 # data.get("USD")
-    UAH = data.get("UAH")
+def sell_all(data):
+    usd = data.get("USD")
+    uah = data.get("UAH")
+    curs = data.get("exchange_rate")
     curs_in_function = float(curs)
-    sell_all = USD * curs_in_function
-    sell_all_correct = float(round(sell_all, 2))
-    UAH_2 = UAH + sell_all_correct
-    UAH = float(round(UAH_2, 2))
-    USD_2 = USD - (sell_all / curs_in_function)
-    USD = float(round(USD_2, 2))
-    return f'сумма средств на USD счету: {USD};  сумма средств на UAH счету: {UAH}'
+    sell_all = usd * curs_in_function
+    sell_all_correct = tofixe(sell_all)
+    uah_2 = uah + sell_all_correct
+    uah = tofixe(uah_2)
+    usd_2 = usd - (sell_all / curs_in_function)
+    usd = tofixe(usd_2)
+    data["USD"] = usd
+    data["UAH"] = uah
+    write("data.json", data)
+    print(f'USD: {usd}; UAH: {uah}')
 
-def NEXT():
-    exchange_rate = data.get("exchange_rate")
-    delta = data.get("delta")
+def next(config, data):
+    exchange_rate = config.get("exchange_rate")
+    delta = config.get("delta")
+    uah = data.get("UAH")
+    usd = data.get("USD")
     max_curs = exchange_rate + delta
     min_curs = exchange_rate - delta
     curs = random.uniform(min_curs, max_curs)
-    curs_2 = round(curs, 2)
-    return curs_2
+    exchange_rate = round(curs, 2)
+    config["exchange_rate"] = exchange_rate
+    config["UAH"] = uah
+    config["USD"] = usd
+    write("data.json", config)
 
 
-# def RESTART():
+
+def restart(config):
+    write("data.json", config)
 
 if __name__ == '__main__':
+    config = read("config.json")
+    data = read("data.json")
 
-    with open('config.json', 'r') as fh:
-        data = json.load(fh)
+    availible(data)
+    next(config, data)
+    rate(data)
+    buy_all(data)
+    sell_all(data)
+    buy_xxx(10, data)
+    sell_xxx(11, data)
+    restart(config)
 
-curs = NEXT()
-print(curs)
-b = RATE(curs=curs)
-print(b)
-c = AVAILABLE()
-print(c)
-v = BUY_ALL(curs=curs)
-print(v)
-q = SELL_ALL(curs=curs)
-print(q)
